@@ -4,7 +4,7 @@ install:
 	poetry install --sync
 
 lint:
-	poetry run flake8
+	poetry run flake8 --exclude .venv,__pycache__,migrations
 
 test:
 	poetry run pytest -vv tests
