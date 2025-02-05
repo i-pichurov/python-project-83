@@ -16,3 +16,9 @@ dev:
 
 start:
 	poetry run gunicorn -w 5 -b 0.0.0.0:$(PORT) page_analyzer.app:app
+
+build:
+	./build.sh
+
+render-start:
+	gunicorn -w 5 -b 0.0.0.0:$(PORT) page_analyzer.app:app
