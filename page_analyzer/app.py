@@ -54,6 +54,15 @@ def index():
     )
 
 
+@app.get('/urls')
+def urls_get():
+    urls = repo.get_content()
+    return render_template(
+        'urls/urls_list.html',
+        urls=urls
+    )
+
+
 @app.post('/urls')
 def urls_post():
 
@@ -70,7 +79,7 @@ def urls_post():
 
     url = {
         'name': normalize_url(raw_url),
-        'created_at': datetime.now()
+        'created_at': datetime.today()
     }
 
     existing_url = repo.check_by_name(url)

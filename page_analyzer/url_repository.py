@@ -5,6 +5,10 @@ class UrlRepository:
     def __init__(self, conn):
         self.conn = conn
 
+    def get_content(self):
+        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT * FROM urls ORDER BY id DESC")
+            return cur.fetchall()
 
     def create(self, url_data):
         with self.conn.cursor() as cur:
@@ -16,14 +20,12 @@ class UrlRepository:
         self.conn.commit()
         return url_data['id']
 
-
     def check_by_name(self, url_data):
         with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
                 "SELECT * FROM urls WHERE name = %s", (url_data['name'],)
             )
             return cur.fetchone()
-
 
     def find(self, id):
         with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
