@@ -64,9 +64,10 @@ def urls_post():
             messages=messages
         )
 
+    current_datetime = datetime.today()
     url = {
         'name': normalize_url(raw_url),
-        'created_at': datetime.today()
+        'created_at': current_datetime.date()
     }
 
     existing_url = repo.check_by_name(url)
