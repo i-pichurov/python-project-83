@@ -11,7 +11,7 @@ from flask import (
     flash,
     get_flashed_messages
 )
-from datetime import datetime
+from datetime import date
 from urllib.parse import urlparse
 from page_analyzer.url_repository import UrlRepository
 
@@ -64,10 +64,9 @@ def urls_post():
             messages=messages
         )
 
-    current_datetime = datetime.today()
     url = {
         'name': normalize_url(raw_url),
-        'created_at': current_datetime.date()
+        'created_at': date.today()
     }
 
     existing_url = repo.check_by_name(url)
