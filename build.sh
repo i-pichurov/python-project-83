@@ -13,4 +13,4 @@ poetry install
 
 # Запускаем команду make install и создаем базу данных
 echo "Запускаем make install..."
-make install && psql -a -d $DATABASE_URL -f database.sql
+make install && psql -a -d urls_db $DATABASE_URL -f database.sql
