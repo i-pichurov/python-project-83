@@ -82,8 +82,10 @@ def urls_post():
 
 @app.route('/urls/<id>')
 def urls_show(id):
+    messages = get_flashed_messages(with_categories=True)
     url = repo.find(id)
     return render_template(
         'urls/show.html',
-        url=url
+        url=url,
+        messages=messages
     )
