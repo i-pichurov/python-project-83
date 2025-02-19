@@ -11,6 +11,6 @@ fi
 echo "Устанавливаем зависимости..."
 poetry install
 
-# Запускаем команду make install (если нужно)
+# Запускаем команду make install и создаем базу данных
 echo "Запускаем make install..."
-make install
+make install && psql -a -d $DATABASE_URL -f database.sql

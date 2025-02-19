@@ -27,19 +27,6 @@ conn = psycopg2.connect(app.config['DATABASE_URL'])
 repo = UrlRepository(conn)
 
 
-create_base_query = """
-CREATE TABLE IF NOT EXISTS urls (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR UNIQUE NOT NULL,
-    created_at TIMESTAMP NOT NULL
-);
-"""
-
-with conn.cursor() as curs:
-    curs.execute(create_base_query)
-    conn.commit()
-
-
 def normalize_url(url):
     parsed = urlparse(url)
     return f"{parsed.scheme}://{parsed.netloc}"
