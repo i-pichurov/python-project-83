@@ -85,3 +85,30 @@ class UrlRepository:
         except Error as e:
             print(f"Database error: {e}")  # Логирование ошибки
             raise
+
+
+    def get_last_url_check(self, url_id):
+        try:
+            with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    """
+                    SELECT
+                        urls.name,
+                        urls.id,
+                        url_checks.created_at,
+                        url_checks.status_code
+                    FROM urls
+                    LEFT JOIN url_checks
+                        ON urls.id = url_checks.url_id
+                    WHERE urls.id = %s
+                    ORDER BY url_checks.created_at DESC
+                    LIMIT 1;
+                    """,
+                    (url_id,)
+                )
+                result = cur.fetchone()
+                return result
+        
+        except Error as e:
+            print(f"Database error: {e}")  # Логирование ошибки
+            raise

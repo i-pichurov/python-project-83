@@ -14,14 +14,22 @@
                             <th>Последняя проверка</th>
                             <th>Код ответа</th>
                         </tr>
-                        {% for url in urls %}
+                        {% for last_url_check in last_url_checks %}
                         <tr>
-                            <td>{{ url.id }}</td>
+                            <td>{{ last_url_check.id }}</td>
                             <td>
-                                <a href="{{ url_for('urls_show', id=url.id)}}">{{ url.name }}</a>
+                                <a href="{{ url_for('urls_show', id=last_url_check.id)}}">{{ last_url_check.name }}</a>
                             </td>
-                            <td></td>
-                            <td></td>
+                            <td>
+                                {% if last_url_check.created_at %}
+                                {{ last_url_check.created_at }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if last_url_check.status_code %}
+                                {{ last_url_check.status_code }}
+                                {% endif %}
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
