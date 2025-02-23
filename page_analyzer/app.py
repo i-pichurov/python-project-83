@@ -1,5 +1,7 @@
 import os
 import psycopg2
+import requests
+from requests.exceptions import RequestException
 import validators
 from dotenv import load_dotenv
 from flask import (
@@ -102,16 +104,27 @@ def urls_show(id):
 
 @app.post('/urls/<id>/checks')
 def url_checks(id):
-    url_check = {
-        'url_id': id,
-        'status_code': '',
-        'h1': '',
-        'title': '',
-        'description': '',
-        'created_at': date.today()
-    }
 
-    repo.create_url_check(url_check)
-    flash('Страница успешно проверена', 'success')
+    url = repo.find(id)
+
+    try:
+        response = requests.get(url['name'])
+        response.raise_for_status()
+
+        url_check = {
+                'url_id': id,
+                'status_code': response.status_code,
+                'h1': '',
+                'title': '',
+                'description': '',
+                'created_at': date.today()
+            }
+
+        repo.create_url_check(url_check)
+        flash('Страница успешно проверена', 'success')
+
+    except RequestException as e:
+        print(f'Произошла ошибка при выполнении запроса: {e}')
+        flash('Произошла ошибка при проверке', 'danger')
 
     return redirect(url_for('urls_show', id=id), code=302)
