@@ -27,7 +27,7 @@ class UrlRepository:
         try:
             with self.conn.cursor() as cur:
                 cur.execute(
-                    """"
+                    """
                     INSERT INTO urls (
                         name,
                         created_at
