@@ -2,6 +2,7 @@ import os
 import psycopg2
 import requests
 from requests.exceptions import RequestException
+from bs4 import BeautifulSoup
 import validators
 from dotenv import load_dotenv
 from flask import (
@@ -111,12 +112,32 @@ def url_checks(id):
         response = requests.get(url['name'])
         response.raise_for_status()
 
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        h1_tag = soup.find('h1')
+        if h1_tag:
+            h1_text = h1_tag.get_text()
+        else:
+            h1_text = ''
+
+        title_tag = soup.find('title')
+        if title_tag:
+            title_text = title_tag.get_text()
+        else:
+            title_text = ''
+
+        description_tag = soup.find('meta', name='description')
+        if description_tag:
+            description_text = description_tag.get('content')
+        else:
+            description_text = ''
+
         url_check = {
                 'url_id': id,
                 'status_code': response.status_code,
-                'h1': '',
-                'title': '',
-                'description': '',
+                'h1': h1_text,
+                'title': title_text,
+                'description': description_text,
                 'created_at': date.today()
             }
 
