@@ -126,7 +126,7 @@ def url_checks(id):
         else:
             title_text = ''
 
-        description_tag = soup.find('meta', name='description')
+        description_tag = soup.find('meta', attrs={'name': 'description'})
         if description_tag:
             description_text = description_tag.get('content')
         else:
