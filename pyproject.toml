@@ -1,18 +1,18 @@
 [project]
-name = "hexlet-code"
+name = "python-project-83"
 version = "0.1.0"
-description = ""
-authors = [
-    { name = "i-pichurov", email = "deadbassein@gmail.com" }
-]
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
 dependencies = [
+    "beautifulsoup4>=4.13.3",
+    "flake8>=7.1.2",
     "flask>=3.1.0",
     "gunicorn>=23.0.0",
-    "python-dotenv>=1.0.1",
     "psycopg2-binary>=2.9.10",
-    "validators>=0.34.0",
+    "python-dotenv>=1.0.1",
     "requests>=2.32.3",
-    "beautifulsoup4>=4.13.3",
+    "validators>=0.34.0",
 ]
 
 [tool.poetry]

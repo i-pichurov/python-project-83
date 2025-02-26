@@ -8,3 +8,4 @@ dist/
 .env
 local_base.py
 requirements.txt
+pyproject.toml.poetry
