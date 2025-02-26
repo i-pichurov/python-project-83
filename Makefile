@@ -1,21 +1,21 @@
 PORT ?= 8000
 
 install:
-	poetry install --sync
+	uv sync
 
 lint:
-	poetry run flake8 --exclude .venv,__pycache__,migrations
+	uv run flake8 --exclude .venv,__pycache__,migrations
 
 test:
-	poetry run pytest -vv tests
+	uv run pytest -vv tests
 
 check: test lint
 
 dev:
-	poetry run flask --app page_analyzer.app --debug run --port $(PORT)
+	uv run flask --app page_analyzer.app --debug run --port $(PORT)
 
 start:
-	poetry run gunicorn -w 5 -b 0.0.0.0:$(PORT) page_analyzer.app:app
+	uv run gunicorn -w 5 -b 0.0.0.0:$(PORT) page_analyzer.app:app
 
 build:
 	./build.sh
