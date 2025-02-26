@@ -6,11 +6,6 @@ install:
 lint:
 	uv run flake8 --exclude .venv,__pycache__,migrations
 
-test:
-	uv run pytest -vv tests
-
-check: test lint
-
 dev:
 	uv run flask --app page_analyzer.app --debug run --port $(PORT)
 
