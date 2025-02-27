@@ -1,6 +1,3 @@
-from .app import app
-
-
-__all__ = (
-    'app',
-)
+from page_analyzer.app import app
+ 
+__all__ = ['app']
