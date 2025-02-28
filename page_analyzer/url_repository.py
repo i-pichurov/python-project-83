@@ -1,11 +1,37 @@
 from psycopg2.extras import RealDictCursor
+from psycopg2 import OperationalError
 from psycopg2 import Error
+from functools import wraps
+
+
+# Декоратор для повторного подключения
+def retry_db_connection(max_retries=3):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            retry_count = 0
+            while retry_count < max_retries:
+                try:
+                    # Выполняем функцию
+                    return func(*args, **kwargs)
+                except OperationalError as e:
+                    retry_count += 1
+                    if retry_count == max_retries:
+                        print(f"Ошибка подключения к базе данных: {e}. Попытки исчерпаны.")
+                        raise  # Пробрасываем исключение, если попытки исчерпаны
+                    print(f"Ошибка подключения: {e}. Попытка повторного подключения #{retry_count}...")
+                except Exception as e:
+                    print(f"Произошла ошибка: {e}")
+                    raise  # Пробрасываем другие исключения
+        return wrapper
+    return decorator
 
 
 class UrlRepository:
     def __init__(self, conn):
         self.conn = conn
 
+    @retry_db_connection(max_retries=3)
     def get_content(self):
         try:
             with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -23,6 +49,7 @@ class UrlRepository:
             print(f"Database error: {e}")  # Логирование ошибки
             raise
 
+    @retry_db_connection(max_retries=3)
     def create(self, url_data):
         try:
             with self.conn.cursor() as cur:
@@ -48,6 +75,7 @@ class UrlRepository:
             print(f"Database error: {e}")  # Логирование ошибки
             raise
 
+    @retry_db_connection(max_retries=3)
     def check_by_name(self, url_data):
         try:
             with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -66,6 +94,7 @@ class UrlRepository:
             print(f"Database error: {e}")  # Логирование ошибки
             raise
 
+    @retry_db_connection(max_retries=3)
     def find(self, id):
         try:
             with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -77,6 +106,7 @@ class UrlRepository:
             print(f"Database error: {e}")  # Логирование ошибки
             raise
 
+    @retry_db_connection(max_retries=3)
     def create_url_check(self, url_check):
         try:
             with self.conn.cursor() as cur:
@@ -112,6 +142,7 @@ class UrlRepository:
             print(f"Database error: {e}")  # Логирование ошибки
             raise
 
+    @retry_db_connection(max_retries=3)
     def get_url_checks(self, url_id):
         try:
             with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -131,6 +162,7 @@ class UrlRepository:
             print(f"Database error: {e}")  # Логирование ошибки
             raise
 
+    @retry_db_connection(max_retries=3)
     def get_last_url_check(self, url_id):
         try:
             with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
