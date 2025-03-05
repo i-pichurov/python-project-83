@@ -67,8 +67,8 @@ def urls_post():
         return render_template(
             'index.html',
             url=raw_url,
-            messages=messages
-        )
+            messages=messages,
+        ), 422
 
     url = {
         'name': normalize_url(raw_url),
