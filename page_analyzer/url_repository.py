@@ -1,5 +1,5 @@
 from psycopg2.extras import RealDictCursor
-from psycopg2 import OperationalError
+from psycopg2 import pool, OperationalError
 from functools import wraps
 
 
@@ -31,12 +31,17 @@ def retry_db_connection(max_retries=3):
 
 
 class UrlRepository:
-    def __init__(self, conn):
-        self.conn = conn
+    def __init__(self, DATABASE_URL):
+        self.connection_pool = pool.SimpleConnectionPool(
+            minconn=1,
+            maxconn=10,
+            dsn=DATABASE_URL,
+        )
 
     @retry_db_connection(max_retries=3)
     def get_content(self):
-        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+        conn = self.connection_pool.getconn()
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
                 """
                 SELECT *
@@ -45,11 +50,13 @@ class UrlRepository:
                 """
             )
             result = cur.fetchall()
+        self.connection_pool.putconn(conn)
         return result
 
     @retry_db_connection(max_retries=3)
     def create(self, url_data):
-        with self.conn.cursor() as cur:
+        conn = self.connection_pool.getconn()
+        with conn.cursor() as cur:
             cur.execute(
                 """
                 INSERT INTO urls (
@@ -65,12 +72,14 @@ class UrlRepository:
                 )
             )
             url_data['id'] = cur.fetchone()[0]
-        self.conn.commit()
+        conn.commit()
+        self.connection_pool.putconn(conn)
         return url_data['id']
 
     @retry_db_connection(max_retries=3)
     def check_by_name(self, url_data):
-        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+        conn = self.connection_pool.getconn()
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
                 """
                 SELECT *
@@ -80,18 +89,22 @@ class UrlRepository:
                 (url_data['name'],)
             )
             result = cur.fetchone()
+        self.connection_pool.putconn(conn)
         return result
 
     @retry_db_connection(max_retries=3)
     def find(self, id):
-        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+        conn = self.connection_pool.getconn()
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute("SELECT * FROM urls WHERE id = %s", (id,))
             result = cur.fetchone()
+        self.connection_pool.putconn(conn)
         return result
 
     @retry_db_connection(max_retries=3)
     def create_url_check(self, url_check):
-        with self.conn.cursor() as cur:
+        conn = self.connection_pool.getconn()
+        with conn.cursor() as cur:
             cur.execute(
                 """
                 INSERT INTO url_checks (
@@ -118,11 +131,13 @@ class UrlRepository:
                     url_check['created_at']
                 )
             )
-        self.conn.commit()
+        conn.commit()
+        self.connection_pool.putconn(conn)
 
     @retry_db_connection(max_retries=3)
     def get_url_checks(self, url_id):
-        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+        conn = self.connection_pool.getconn()
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
                 """
                 SELECT *
@@ -133,11 +148,13 @@ class UrlRepository:
                 (url_id,)
             )
             result = cur.fetchall()
-            return result
+        self.connection_pool.putconn(conn)
+        return result
 
     @retry_db_connection(max_retries=3)
     def get_last_url_check(self, url_id):
-        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+        conn = self.connection_pool.getconn()
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
                 """
                 SELECT
@@ -155,4 +172,5 @@ class UrlRepository:
                 (url_id,)
             )
             result = cur.fetchone()
-            return result
+        self.connection_pool.putconn(conn)
+        return result

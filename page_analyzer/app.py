@@ -1,5 +1,4 @@
 import os
-import psycopg2
 import requests
 from requests.exceptions import RequestException
 from bs4 import BeautifulSoup
@@ -25,9 +24,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['DATABASE_URL'] = os.getenv('DATABASE_URL')
 
-
-conn = psycopg2.connect(app.config['DATABASE_URL'])
-repo = UrlRepository(conn)
+repo = UrlRepository(app.config['DATABASE_URL'])
 
 
 def normalize_url(url):
