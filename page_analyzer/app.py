@@ -1,9 +1,12 @@
 import os
-import requests
-from requests.exceptions import RequestException
-from bs4 import BeautifulSoup
-import validators
 from dotenv import load_dotenv
+from datetime import date
+from page_analyzer.url_repository import UrlRepository
+from page_analyzer.parser import parse
+from page_analyzer.validator import (
+    normalize_url,
+    is_validate
+)
 from flask import (
     Flask,
     render_template,
@@ -13,9 +16,7 @@ from flask import (
     flash,
     get_flashed_messages
 )
-from datetime import date
-from urllib.parse import urlparse
-from page_analyzer.url_repository import UrlRepository
+
 
 # Загружаем переменные окружения из .env файла
 load_dotenv()
@@ -25,11 +26,6 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['DATABASE_URL'] = os.getenv('DATABASE_URL')
 
 repo = UrlRepository(app.config['DATABASE_URL'])
-
-
-def normalize_url(url):
-    parsed = urlparse(url)
-    return f"{parsed.scheme}://{parsed.netloc}"
 
 
 @app.route('/')
@@ -60,9 +56,10 @@ def urls_get():
 def urls_post():
 
     raw_url = request.form.get('url')
+    errors = is_validate(raw_url)
 
-    if not validators.url(raw_url):
-        flash('Некорректный URL', 'danger')
+    if errors:
+        flash(errors['name'], 'danger')
         messages = get_flashed_messages(with_categories=True)
         return render_template(
             'index.html',
@@ -104,45 +101,14 @@ def urls_show(id):
 def url_checks(id):
 
     url = repo.find(id)
+    url_check, errors = parse(url['name'])
 
-    try:
-        response = requests.get(url['name'])
-        response.raise_for_status()
-
-        soup = BeautifulSoup(response.text, 'html.parser')
-
-        h1_tag = soup.find('h1')
-        if h1_tag:
-            h1_text = h1_tag.get_text()
-        else:
-            h1_text = ''
-
-        title_tag = soup.find('title')
-        if title_tag:
-            title_text = title_tag.get_text()
-        else:
-            title_text = ''
-
-        description_tag = soup.find('meta', attrs={'name': 'description'})
-        if description_tag:
-            description_text = description_tag.get('content')
-        else:
-            description_text = ''
-
-        url_check = {
-                'url_id': id,
-                'status_code': response.status_code,
-                'h1': h1_text,
-                'title': title_text,
-                'description': description_text,
-                'created_at': date.today()
-            }
-
+    if errors:
+        flash(errors['name'], 'danger')
+    else:
+        url_check['url_id'] = id
+        url_check['created_at'] = date.today()
         repo.create_url_check(url_check)
         flash('Страница успешно проверена', 'success')
-
-    except RequestException as e:
-        print(f'Произошла ошибка при выполнении запроса: {e}')
-        flash('Произошла ошибка при проверке', 'danger')
 
     return redirect(url_for('urls_show', id=id), code=302)
