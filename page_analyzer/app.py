@@ -65,7 +65,7 @@ def urls_post():
         'created_at': date.today()
     }
 
-    existing_url = repo.check_by_name(url)
+    existing_url = repo.get_by_name(url)
     if existing_url:
         id = existing_url['id']
         flash('Страница уже существует', 'info')
@@ -78,7 +78,7 @@ def urls_post():
 
 @app.route('/urls/<id>')
 def urls_show(id):
-    url = repo.find(id)
+    url = repo.get_by_id(id)
     url_checks = repo.get_url_checks(id)
 
     return render_template(
@@ -91,7 +91,7 @@ def urls_show(id):
 @app.post('/urls/<id>/checks')
 def url_checks(id):
 
-    url = repo.find(id)
+    url = repo.get_by_id(id)
     url_check, errors = parse(url['name'])
 
     if errors:

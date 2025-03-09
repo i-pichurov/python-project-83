@@ -84,7 +84,7 @@ class UrlRepository:
                 return url_data['id']
 
     @retry_db_connection(max_retries=3)
-    def check_by_name(self, url_data):
+    def get_by_name(self, url_data):
         with self.get_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute(
@@ -99,7 +99,7 @@ class UrlRepository:
                 return result
 
     @retry_db_connection(max_retries=3)
-    def find(self, id):
+    def get_by_id(self, id):
         with self.get_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute("SELECT * FROM urls WHERE id = %s", (id,))

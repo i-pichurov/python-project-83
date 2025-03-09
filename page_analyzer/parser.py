@@ -18,7 +18,8 @@ def parse(url):
         title_text = title_tag.get_text() if title_tag else ''
 
         description_tag = soup.find('meta', attrs={'name': 'description'})
-        description_text = description_tag.get('content') if description_tag else ''
+        description_text = description_tag.get('content') \
+            if description_tag else ''
 
         result = {
                 'status_code': response.status_code,
