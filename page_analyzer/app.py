@@ -34,7 +34,7 @@ def index():
 
 @app.get('/urls')
 def urls_get():
-    urls = repo.get_content()
+    urls = repo.get_urls_list()
     last_url_checks = []
 
     for url in urls:
