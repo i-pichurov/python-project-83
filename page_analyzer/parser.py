@@ -12,22 +12,13 @@ def parse(url):
         soup = BeautifulSoup(response.text, 'html.parser')
 
         h1_tag = soup.find('h1')
-        if h1_tag:
-            h1_text = h1_tag.get_text()
-        else:
-            h1_text = ''
+        h1_text = h1_tag.get_text() if h1_tag else ''
 
         title_tag = soup.find('title')
-        if title_tag:
-            title_text = title_tag.get_text()
-        else:
-            title_text = ''
+        title_text = title_tag.get_text() if title_tag else ''
 
         description_tag = soup.find('meta', attrs={'name': 'description'})
-        if description_tag:
-            description_text = description_tag.get('content')
-        else:
-            description_text = ''
+        description_text = description_tag.get('content') if description_tag else ''
 
         result = {
                 'status_code': response.status_code,
