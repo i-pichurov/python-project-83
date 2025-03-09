@@ -14,7 +14,6 @@ from flask import (
     redirect,
     url_for,
     flash,
-    get_flashed_messages
 )
 
 
@@ -30,11 +29,7 @@ repo = UrlRepository(app.config['DATABASE_URL'])
 
 @app.route('/')
 def index():
-    messages = get_flashed_messages(with_categories=True)
-    return render_template(
-        'index.html',
-        messages=messages
-    )
+    return render_template('index.html')
 
 
 @app.get('/urls')
@@ -60,11 +55,9 @@ def urls_post():
 
     if errors:
         flash(errors['name'], 'danger')
-        messages = get_flashed_messages(with_categories=True)
         return render_template(
             'index.html',
-            url=raw_url,
-            messages=messages,
+            url=raw_url
         ), 422
 
     url = {
@@ -85,15 +78,13 @@ def urls_post():
 
 @app.route('/urls/<id>')
 def urls_show(id):
-    messages = get_flashed_messages(with_categories=True)
     url = repo.find(id)
     url_checks = repo.get_url_checks(id)
 
     return render_template(
         'urls/show.html',
         url=url,
-        url_checks=url_checks,
-        messages=messages
+        url_checks=url_checks
     )
 
 
