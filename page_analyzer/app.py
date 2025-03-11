@@ -1,4 +1,6 @@
 import os
+import requests
+from requests.exceptions import RequestException
 from dotenv import load_dotenv
 from datetime import date
 from page_analyzer.url_repository import UrlRepository
@@ -92,14 +94,22 @@ def urls_show(id):
 def url_checks(id):
 
     url = repo.get_by_id(id)
-    url_check, errors = parse(url['name'])
 
-    if errors:
-        flash(errors['name'], 'danger')
-    else:
-        url_check['url_id'] = id
-        url_check['created_at'] = date.today()
+    try:
+        response = requests.get(url['name'])
+        response.raise_for_status()
+        url_check = {
+            'url_id': id,
+            'status_code': response.status_code,
+            'created_at': date.today()
+        }
+        url_check.update(parse(response.text))
         repo.create_url_check(url_check)
         flash('Страница успешно проверена', 'success')
 
-    return redirect(url_for('urls_show', id=id), code=302)
+    except RequestException as e:
+        print(f'Произошла ошибка при выполнении запроса: {e}')
+        flash('Произошла ошибка при проверке', 'danger')
+
+    finally:
+        return redirect(url_for('urls_show', id=id), code=302)
